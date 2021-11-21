@@ -1,0 +1,82 @@
+.welcome .fa-link {
+  margin-right: 5px;
+}
+
+/* Fix for use only flexbox in content area */
+.welcome .row {
+  margin-bottom: 0;
+}
+
+.welcome .col-md-5 {
+  margin-bottom: 3rem;
+}
+
+@media (max-width: 768px) {
+  .welcome .col-md-5 {
+    margin-bottom: 0;
+  }
+}
+
+.spinner {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  height: 100vh;
+  width: 100vw;
+  background-color: white;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.result-block-container .result-block {
+  opacity: 1;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.form input {
+  width: 300px;
+  height: 60px;
+  margin: 10px;
+  font-size: 14px;
+}
+
+.listabook {
+  text-align: center;
+}
+
+.card {
+  display: flex;
+  width: 800px;
+  height: 200px;
+  border: 2px solid black;
+  border-radius: 15px;
+  margin: 20px;
+  font-family: "Trebuchet MS";
+  justify-content: center;
+  align-items: center;
+}
+
+#updateInput {
+  width: 100px;
+  height: 20px;
+  margin: 10px;
+}
+
+#editListing button {
+  margin: 5px;
+}
+
+.myListings {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
