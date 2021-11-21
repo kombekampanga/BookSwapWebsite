@@ -21,6 +21,14 @@ const Listings = () => {
         return (
           <div className="card">
             <h1>{val.title}</h1>
+            {val.image === "" ? (
+              <img
+                src="https://res.cloudinary.com/dmxlueraz/image/upload/v1637478934/missing-picture-page-for-website_dmujoj.jpg"
+                alt="No Image"
+              />
+            ) : (
+              <img src={val.image} alt="Listing Image" />
+            )}
             <h4>By {val.author}</h4>
             <h5>{val.genre}</h5>
             <p>Listed by {val.userEmail}</p>

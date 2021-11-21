@@ -35,19 +35,39 @@
   cursor: pointer;
 }
 
-.modalBody {
+/* .modalBody {
   flex: 50%;
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.7rem;
+  text-align: center;
+  flex-direction: column;
+} */
+
+.modalBody div {
+  margin-bottom: 20px;
+  flex: 50%;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
   font-size: 1.7rem;
   text-align: center;
   flex-direction: column;
 }
 
+.modalBody img {
+  width: 200px;
+}
+
 .modalBody input {
   text-align: center;
   margin: 10px;
+}
+
+.modalBody label {
+  font-weight: 500;
+  margin-top: 5px;
 }
 
 .modalfooter {

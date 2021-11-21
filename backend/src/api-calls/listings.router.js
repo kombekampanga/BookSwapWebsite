@@ -39,6 +39,7 @@ listingsRouter.get("/my-listings/get", checkJwt, (req, res) => {
 
 // Add a listing
 listingsRouter.post("/my-listings/insert", checkJwt, (req, res) => {
+  const imageUrl = req.body.imageUrl;
   const userId = req.body.userId;
   const userEmail = req.body.userEmail;
   const bookTitle = req.body.bookTitle;
@@ -46,10 +47,10 @@ listingsRouter.post("/my-listings/insert", checkJwt, (req, res) => {
   const bookGenre = req.body.bookGenre;
 
   const sqlInsert =
-    "INSERT INTO books (title, author, genre, userId, userEmail) VALUES (?,?,?,?, ?)";
+    "INSERT INTO books (title, author, genre, userId, userEmail, image) VALUES (?,?,?,?,?,?)";
   db.query(
     sqlInsert,
-    [bookTitle, bookAuthor, bookGenre, userId, userEmail],
+    [bookTitle, bookAuthor, bookGenre, userId, userEmail, imageUrl],
     (err, result) => {
       if (err) {
         console.log(err);
@@ -84,13 +85,14 @@ listingsRouter.put("/my-listings/update/", checkJwt, (req, res) => {
   const bookTitle = req.body.bookTitle;
   const bookAuthor = req.body.bookAuthor;
   const bookGenre = req.body.bookGenre;
+  const bookImageUrl = req.body.bookImageUrl;
 
   const sqlUpdate =
-    "UPDATE books SET title = ?, author = ?, genre = ? WHERE id = ? AND userId = ?";
+    "UPDATE books SET title = ?, author = ?, genre = ?, image = ? WHERE id = ? AND userId = ?";
 
   db.query(
     sqlUpdate,
-    [bookTitle, bookAuthor, bookGenre, bookId, userId],
+    [bookTitle, bookAuthor, bookGenre, bookImageUrl, bookId, userId],
     (err, result) => {
       if (err) {
         console.log(err);

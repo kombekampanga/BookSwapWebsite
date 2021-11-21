@@ -22,6 +22,9 @@ const MyListings = () => {
   const [updatedBookTitle, setUpdatedBookTitle] = useState("");
   const [updatedBookAuthor, setUpdatedBookAuthor] = useState("");
   const [updatedBookGenre, setUpdatedBookGenre] = useState("");
+  const [updatedBookImageUrl, setUpdatedBookImageUrl] = useState("");
+  const [imageHasChanged, setImageHasChanged] = useState(false);
+  const [uploadedBookImage, setUploadedBookImage] = useState({});
 
   const getMyListings = async () => {
     const token = await getAccessTokenSilently();
@@ -72,11 +75,45 @@ const MyListings = () => {
     setUpdatedBookTitle(val.title);
     setUpdatedBookAuthor(val.author);
     setUpdatedBookGenre(val.genre);
+    setUpdatedBookImageUrl(val.image);
+    setImageHasChanged(false);
+  };
+
+  const finishEditEventHandler = () => {
+    setSelectedBook({});
+    setEditIsOpen(false);
+    setUpdatedBookTitle("");
+    setUpdatedBookAuthor("");
+    setUpdatedBookGenre("");
+    setUpdatedBookImageUrl("");
+    setImageHasChanged(false);
   };
 
   const updateListing = async (bookId) => {
     const token = await getAccessTokenSilently();
-    console.log(bookId);
+    const formData = new FormData();
+    formData.append("file", uploadedBookImage);
+    formData.append("upload_preset", "ju4duels");
+
+    // Upload the image to cloudinary
+    if (imageHasChanged) {
+      Axios.post(
+        "https://api.cloudinary.com/v1_1/dmxlueraz/image/upload",
+        formData
+      )
+        .then((response) => {
+          console.log(response.data.url);
+          setUpdatedBookImageUrl(response.data.url);
+        })
+        .catch((err) => {
+          console.log(err.response);
+          alert(err.response.data);
+          return;
+        });
+    }
+
+    // Add to database
+
     Axios.put(
       serverUrl + "/api/listings/my-listings/update",
       {
@@ -85,6 +122,7 @@ const MyListings = () => {
         bookTitle: updatedBookTitle,
         bookAuthor: updatedBookAuthor,
         bookGenre: updatedBookGenre,
+        bookImageUrl: updatedBookImageUrl,
       },
       {
         headers: {
@@ -94,11 +132,7 @@ const MyListings = () => {
     )
       .then(() => {
         alert(updatedBookTitle + " listing updated");
-        setUpdatedBookTitle("");
-        setUpdatedBookAuthor("");
-        setUpdatedBookGenre("");
-        setEditIsOpen(false);
-        setSelectedBook({});
+        finishEditEventHandler();
         window.location.reload();
       })
       .catch((err) => {
@@ -113,6 +147,15 @@ const MyListings = () => {
         return (
           <div className="card">
             <h1>{val.title}</h1>
+            {val.image === "" ? (
+              <img
+                src="https://res.cloudinary.com/dmxlueraz/image/upload/v1637477634/missing-picture-page-for-website_dmujoj.jpg"
+                alt="Listing Image"
+              />
+            ) : (
+              <img src={val.image} alt="Listing Image" />
+            )}
+
             <h4>By {val.author}</h4>
             <p>{val.genre}</p>
 
@@ -146,6 +189,7 @@ const MyListings = () => {
         );
       })}
 
+      {/* Edit Listing Modal */}
       {editIsOpen && (
         <div className="modalBackground">
           <Modal
@@ -155,57 +199,78 @@ const MyListings = () => {
             overlayClassName="myoverlay"
           >
             <div className="xModalBtn">
-              <button
-                onClick={() => {
-                  setEditIsOpen(false);
-                  setSelectedBook({});
-                }}
-              >
-                X
-              </button>
+              <button onClick={() => finishEditEventHandler()}>X</button>
             </div>
 
             <div className="modalTitle">
               <h1>Edit Your Listing</h1>
             </div>
             <div className="modalBody">
-              <label>Title:</label>
-              <input
-                type="text"
-                name="Title"
-                defaultValue={selectedBook.title}
-                onChange={(e) => {
-                  setUpdatedBookTitle(e.target.value);
-                }}
-              />
-              <label>Author:</label>
-              <input
-                type="text"
-                name="Author"
-                defaultValue={selectedBook.author}
-                onChange={(e) => {
-                  setUpdatedBookAuthor(e.target.value);
-                }}
-              />
-              <label>Genre:</label>
-              <input
-                type="text"
-                name="Genre"
-                defaultValue={selectedBook.genre}
-                onChange={(e) => {
-                  setUpdatedBookGenre(e.target.value);
-                }}
-              />
+              <div>
+                <label>Title:</label>
+                <input
+                  type="text"
+                  name="Title"
+                  defaultValue={selectedBook.title}
+                  onChange={(e) => {
+                    setUpdatedBookTitle(e.target.value);
+                  }}
+                />
+              </div>
+              <div>
+                <label>Image:</label>
+                {selectedBook.image === "" ? (
+                  <img
+                    id="editListingImage"
+                    src="https://res.cloudinary.com/dmxlueraz/image/upload/v1637477634/missing-picture-page-for-website_dmujoj.jpg"
+                    alt="Listing Image"
+                  />
+                ) : (
+                  <img
+                    id="editListingImage"
+                    src={selectedBook.image}
+                    alt="Listing Image"
+                  />
+                )}
+                <label>Upload New Image:</label>
+                <input
+                  accept="image/*"
+                  type="file"
+                  name="Picture"
+                  onChange={(e) => {
+                    document.getElementById("editListingImage").src =
+                      window.URL.createObjectURL(e.target.files[0]);
+                    setUploadedBookImage(e.target.files[0]);
+                    setImageHasChanged(true);
+                    console.log(e.target.files[0]);
+                  }}
+                />
+              </div>
+              <div>
+                <label>Author:</label>
+                <input
+                  type="text"
+                  name="Author"
+                  defaultValue={selectedBook.author}
+                  onChange={(e) => {
+                    setUpdatedBookAuthor(e.target.value);
+                  }}
+                />
+              </div>
+              <div>
+                <label>Genre:</label>
+                <input
+                  type="text"
+                  name="Genre"
+                  defaultValue={selectedBook.genre}
+                  onChange={(e) => {
+                    setUpdatedBookGenre(e.target.value);
+                  }}
+                />
+              </div>
             </div>
             <div className="modalFooter">
-              <button
-                onClick={() => {
-                  setEditIsOpen(false);
-                  setSelectedBook({});
-                }}
-              >
-                Cancel
-              </button>
+              <button onClick={() => finishEditEventHandler()}>Cancel</button>
               <button
                 onClick={() => {
                   updateListing(selectedBook.id);

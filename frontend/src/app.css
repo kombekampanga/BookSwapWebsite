@@ -52,16 +52,25 @@
   text-align: center;
 }
 
+.listabook img {
+  width: 400px;
+}
+
 .card {
   display: flex;
   width: 800px;
-  height: 200px;
+  height: 500px;
   border: 2px solid black;
   border-radius: 15px;
   margin: 20px;
   font-family: "Trebuchet MS";
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
+  padding: 20px;
+}
+
+.card img {
+  width: 200px;
 }
 
 #updateInput {
