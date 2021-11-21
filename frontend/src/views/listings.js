@@ -15,7 +15,7 @@ const Listings = () => {
   }, []);
 
   return (
-    <div>
+    <div className="allListings">
       {/* {JSON.stringify(user, null, 2)} */}
       {bookList.map((val) => {
         return (
