@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import Axios from "axios";
+import Modal from "react-modal";
 
 const ListABook = () => {
   const { user, getAccessTokenSilently } = useAuth0();
@@ -14,6 +15,7 @@ const ListABook = () => {
   const [bookList, setBookList] = useState([]);
   const [imageSelected, setImageSelected] = useState({});
   const [newListingImageUrl, setNewListingImageUrl] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   const getMyListings = async () => {
     const token = await getAccessTokenSilently();
@@ -69,14 +71,16 @@ const ListABook = () => {
             },
           }
         ).then(() => {
+          setSubmitting(false);
           alert("Listing Added");
-          //window.location.reload();
+          window.location.reload();
           // Array.from(document.querySelectorAll("input")).forEach(
           //   (input) => (input.value = "")
           //);
         });
       })
       .catch((err) => {
+        setSubmitting(false);
         console.log(err.response);
         alert(err.response.data);
         return;
@@ -128,7 +132,29 @@ const ListABook = () => {
         />
         <br />
 
-        <button onClick={addListing}>Submit</button>
+        <button
+          onClick={() => {
+            setSubmitting(true);
+            addListing();
+          }}
+        >
+          Submit
+        </button>
+
+        {/* Submitting Modal */}
+
+        {submitting && (
+          <div className="modalBackground">
+            <Modal
+              isOpen={submitting}
+              contentLabel="My dialog"
+              className="mymodal"
+              overlayClassName="myoverlay"
+            >
+              <h1>Submitting Listing...</h1>
+            </Modal>
+          </div>
+        )}
 
         <br />
         <br />

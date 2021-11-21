@@ -25,6 +25,7 @@ const MyListings = () => {
   const [updatedBookImageUrl, setUpdatedBookImageUrl] = useState("");
   const [imageHasChanged, setImageHasChanged] = useState(false);
   const [uploadedBookImage, setUploadedBookImage] = useState({});
+  const [saving, setSaving] = useState(false);
 
   const getMyListings = async () => {
     const token = await getAccessTokenSilently();
@@ -95,7 +96,38 @@ const MyListings = () => {
     formData.append("file", uploadedBookImage);
     formData.append("upload_preset", "ju4duels");
 
-    // Upload the image to cloudinary
+    // Add to database
+    const addListingToDatabase = (imageUrl) => {
+      Axios.put(
+        serverUrl + "/api/listings/my-listings/update",
+        {
+          userId: userId,
+          bookId: bookId,
+          bookTitle: updatedBookTitle,
+          bookAuthor: updatedBookAuthor,
+          bookGenre: updatedBookGenre,
+          bookImageUrl: imageUrl,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+        .then(() => {
+          setSaving(false);
+          alert(updatedBookTitle + " listing updated");
+          finishEditEventHandler();
+          window.location.reload();
+        })
+        .catch((err) => {
+          setSaving(false);
+          console.log(err.response);
+          alert(err.response.data);
+        });
+    };
+
+    // If new image has been added, upload the image to cloudinary
     if (imageHasChanged) {
       Axios.post(
         "https://api.cloudinary.com/v1_1/dmxlueraz/image/upload",
@@ -104,41 +136,17 @@ const MyListings = () => {
         .then((response) => {
           console.log(response.data.url);
           setUpdatedBookImageUrl(response.data.url);
+          addListingToDatabase(response.data.url);
         })
         .catch((err) => {
+          setSaving(false);
           console.log(err.response);
           alert(err.response.data);
           return;
         });
+    } else {
+      addListingToDatabase(updatedBookImageUrl);
     }
-
-    // Add to database
-
-    Axios.put(
-      serverUrl + "/api/listings/my-listings/update",
-      {
-        userId: userId,
-        bookId: bookId,
-        bookTitle: updatedBookTitle,
-        bookAuthor: updatedBookAuthor,
-        bookGenre: updatedBookGenre,
-        bookImageUrl: updatedBookImageUrl,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    )
-      .then(() => {
-        alert(updatedBookTitle + " listing updated");
-        finishEditEventHandler();
-        window.location.reload();
-      })
-      .catch((err) => {
-        console.log(err.response);
-        alert(err.response.data);
-      });
   };
 
   return (
@@ -273,6 +281,7 @@ const MyListings = () => {
               <button onClick={() => finishEditEventHandler()}>Cancel</button>
               <button
                 onClick={() => {
+                  setSaving(true);
                   updateListing(selectedBook.id);
                 }}
               >
@@ -297,6 +306,20 @@ const MyListings = () => {
                 Delete Listing
               </button>
             </div>
+          </Modal>
+        </div>
+      )}
+
+      {/* Saving Modal */}
+      {saving && (
+        <div className="modalBackground">
+          <Modal
+            isOpen={saving}
+            contentLabel="My dialog"
+            className="mymodal"
+            overlayClassName="myoverlay"
+          >
+            <h1>Saving...</h1>
           </Modal>
         </div>
       )}
