@@ -5,7 +5,6 @@ import Axios from "axios";
 const Listings = () => {
   const { user } = useAuth0();
   const serverUrl = process.env.REACT_APP_SERVER_URL;
-  //const { name, picture, email } = user;
   const [bookList, setBookList] = useState([]);
 
   useEffect(() => {

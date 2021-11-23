@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 import Axios from "axios";
 import Modal from "react-modal";
+import { Checkbox, FormControlLabel } from "@material-ui/core";
 
 const ListABook = () => {
   const { user, getAccessTokenSilently } = useAuth0();
@@ -16,6 +17,8 @@ const ListABook = () => {
   const [imageSelected, setImageSelected] = useState({});
   const [newListingImageUrl, setNewListingImageUrl] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [availableForSwap, setAvailableForSwap] = useState(false);
+  const [availableToGiveAway, setAvailableToGiveAway] = useState(false);
 
   const getMyListings = async () => {
     const token = await getAccessTokenSilently();
@@ -41,6 +44,12 @@ const ListABook = () => {
 
   const addListing = async () => {
     const token = await getAccessTokenSilently();
+    console.log(imageSelected.name);
+    if (imageSelected.name === undefined) {
+      setSubmitting(false);
+      alert("Please upload a photo");
+      return;
+    }
     const formData = new FormData();
     formData.append("file", imageSelected);
     formData.append("upload_preset", "ju4duels");
@@ -64,6 +73,8 @@ const ListABook = () => {
             bookTitle: bookTitle,
             bookAuthor: bookAuthor,
             bookGenre: bookGenre,
+            availableForSwap: availableForSwap,
+            availableToGiveAway: availableToGiveAway,
           },
           {
             headers: {
@@ -129,6 +140,36 @@ const ListABook = () => {
           id="newListingImage"
           src="https://res.cloudinary.com/dmxlueraz/image/upload/v1637477634/missing-picture-page-for-website_dmujoj.jpg"
           alt="Listing Image"
+        />
+        <br />
+
+        <label>Swap/ Give away settings:</label>
+        <FormControlLabel
+          control={
+            <Checkbox
+              color="primary"
+              checked={availableForSwap}
+              onChange={() => {
+                setAvailableForSwap(!availableForSwap);
+              }}
+              name="availableForSwap"
+            />
+          }
+          label="Available for swap"
+        />
+
+        <FormControlLabel
+          control={
+            <Checkbox
+              color="primary"
+              checked={availableToGiveAway}
+              onChange={() => {
+                setAvailableToGiveAway(!availableToGiveAway);
+              }}
+              name="availableToGiveAway"
+            />
+          }
+          label="Available to give away"
         />
         <br />
 

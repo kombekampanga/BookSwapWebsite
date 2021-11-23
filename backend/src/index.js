@@ -10,6 +10,7 @@ const { clientOrigins, serverPort } = require("./config/env.dev");
 const { messagesRouter } = require("./messages/messages.router");
 const { listingsRouter } = require("./api-calls/listings.router");
 const { usersRouter } = require("./api-calls/users.router");
+const { myAccountRouter } = require("./api-calls/my-account.router");
 
 /**
  * App Variables
@@ -35,6 +36,7 @@ app.use("/api", apiRouter);
 apiRouter.use("/messages", messagesRouter);
 apiRouter.use("/listings", listingsRouter);
 apiRouter.use("/users", usersRouter);
+apiRouter.use("/my-account", myAccountRouter);
 
 app.use(function (err, req, res, next) {
   console.log(err);

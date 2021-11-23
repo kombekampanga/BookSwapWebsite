@@ -6,7 +6,7 @@ import Axios from "axios";
 import { NavBar, Footer } from "./components";
 import {
   Home,
-  Profile,
+  MyAccount,
   ExternalApi,
   Listings,
   ListABook,
@@ -60,7 +60,7 @@ const App = () => {
         <div className="mt-5">
           <Switch>
             <Route path="/" exact component={Home} />
-            <ProtectedRoute path="/profile" component={Profile} />
+            <ProtectedRoute path="/myAccount" component={MyAccount} />
             <Route path="/listings" component={Listings} />
             <ProtectedRoute path="/listabook" component={ListABook} />
             <ProtectedRoute path="/mylistings" component={MyListings} />

@@ -3,6 +3,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 import Axios from "axios";
 import Modal from "react-modal";
 import "./editListingModal.css";
+import { Checkbox, FormControlLabel } from "@material-ui/core";
 
 Modal.setAppElement("#root");
 
@@ -26,6 +27,9 @@ const MyListings = () => {
   const [imageHasChanged, setImageHasChanged] = useState(false);
   const [uploadedBookImage, setUploadedBookImage] = useState({});
   const [saving, setSaving] = useState(false);
+  const [updatedAvailableForSwap, setUpdatedAvailableForSwap] = useState("");
+  const [updatedAvailableToGiveAway, setUpdatedAvailableToGiveAway] =
+    useState("");
 
   const getMyListings = async () => {
     const token = await getAccessTokenSilently();
@@ -78,6 +82,9 @@ const MyListings = () => {
     setUpdatedBookGenre(val.genre);
     setUpdatedBookImageUrl(val.image);
     setImageHasChanged(false);
+    // !! to turn integer into boolean
+    setUpdatedAvailableForSwap(!!val.swap);
+    setUpdatedAvailableToGiveAway(!!val.giveAway);
   };
 
   const finishEditEventHandler = () => {
@@ -88,6 +95,9 @@ const MyListings = () => {
     setUpdatedBookGenre("");
     setUpdatedBookImageUrl("");
     setImageHasChanged(false);
+    setImageHasChanged(false);
+    setUpdatedAvailableForSwap("");
+    setUpdatedAvailableToGiveAway("");
   };
 
   const updateListing = async (bookId) => {
@@ -107,6 +117,8 @@ const MyListings = () => {
           bookAuthor: updatedBookAuthor,
           bookGenre: updatedBookGenre,
           bookImageUrl: imageUrl,
+          availableForSwap: updatedAvailableForSwap,
+          availableToGiveAway: updatedAvailableToGiveAway,
         },
         {
           headers: {
@@ -274,6 +286,38 @@ const MyListings = () => {
                   onChange={(e) => {
                     setUpdatedBookGenre(e.target.value);
                   }}
+                />
+              </div>
+              <div>
+                <label>Swap/ Give away settings:</label>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      color="primary"
+                      checked={updatedAvailableForSwap}
+                      onChange={() => {
+                        setUpdatedAvailableForSwap(!updatedAvailableForSwap);
+                      }}
+                      name="availableForSwap"
+                    />
+                  }
+                  label="Available for swap"
+                />
+
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      color="primary"
+                      checked={updatedAvailableToGiveAway}
+                      onChange={() => {
+                        setUpdatedAvailableToGiveAway(
+                          !updatedAvailableToGiveAway
+                        );
+                      }}
+                      name="availableToGiveAway"
+                    />
+                  }
+                  label="Available to give away"
                 />
               </div>
             </div>

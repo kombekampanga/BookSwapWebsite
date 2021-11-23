@@ -45,12 +45,23 @@ listingsRouter.post("/my-listings/insert", checkJwt, (req, res) => {
   const bookTitle = req.body.bookTitle;
   const bookAuthor = req.body.bookAuthor;
   const bookGenre = req.body.bookGenre;
+  const availableForSwap = req.body.availableForSwap;
+  const availableToGiveAway = req.body.availableToGiveAway;
 
   const sqlInsert =
-    "INSERT INTO books (title, author, genre, userId, userEmail, image) VALUES (?,?,?,?,?,?)";
+    "INSERT INTO books (title, author, genre, userId, userEmail, image, swap, giveAway, modifiedOn, active, status) VALUES (?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP, TRUE, 'open')";
   db.query(
     sqlInsert,
-    [bookTitle, bookAuthor, bookGenre, userId, userEmail, imageUrl],
+    [
+      bookTitle,
+      bookAuthor,
+      bookGenre,
+      userId,
+      userEmail,
+      imageUrl,
+      availableForSwap,
+      availableToGiveAway,
+    ],
     (err, result) => {
       if (err) {
         console.log(err);
@@ -86,13 +97,24 @@ listingsRouter.put("/my-listings/update/", checkJwt, (req, res) => {
   const bookAuthor = req.body.bookAuthor;
   const bookGenre = req.body.bookGenre;
   const bookImageUrl = req.body.bookImageUrl;
+  const availableForSwap = req.body.availableForSwap;
+  const availableToGiveAway = req.body.availableToGiveAway;
 
   const sqlUpdate =
-    "UPDATE books SET title = ?, author = ?, genre = ?, image = ? WHERE id = ? AND userId = ?";
+    "UPDATE books SET title = ?, author = ?, genre = ?, image = ?, swap = ?, giveAway = ?, modifiedOn = CURRENT_TIMESTAMP WHERE id = ? AND userId = ?";
 
   db.query(
     sqlUpdate,
-    [bookTitle, bookAuthor, bookGenre, bookImageUrl, bookId, userId],
+    [
+      bookTitle,
+      bookAuthor,
+      bookGenre,
+      bookImageUrl,
+      availableForSwap,
+      availableToGiveAway,
+      bookId,
+      userId,
+    ],
     (err, result) => {
       if (err) {
         console.log(err);
