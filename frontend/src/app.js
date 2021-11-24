@@ -11,6 +11,8 @@ import {
   Listings,
   ListABook,
   MyListings,
+  RequestABook,
+  RespondToABookRequest,
 } from "./views";
 
 import "./app.css";
@@ -39,7 +41,7 @@ const App = () => {
       }
     )
       .then((response) => {
-        if (response.data.affectedRows != 0) {
+        if (response.data.affectedRows !== 0) {
           alert("User Added");
         }
       })
@@ -60,11 +62,16 @@ const App = () => {
         <div className="mt-5">
           <Switch>
             <Route path="/" exact component={Home} />
-            <ProtectedRoute path="/myAccount" component={MyAccount} />
+            <ProtectedRoute path="/myaccount" component={MyAccount} />
             <Route path="/listings" component={Listings} />
             <ProtectedRoute path="/listabook" component={ListABook} />
             <ProtectedRoute path="/mylistings" component={MyListings} />
             <ProtectedRoute path="/external-api" component={ExternalApi} />
+            <ProtectedRoute path="/request-a-book" component={RequestABook} />
+            <ProtectedRoute
+              path="/respond-to-request"
+              component={RespondToABookRequest}
+            />
           </Switch>
         </div>
       </div>

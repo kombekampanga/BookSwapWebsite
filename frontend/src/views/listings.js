@@ -4,6 +4,7 @@ import Axios from "axios";
 
 const Listings = () => {
   const { user } = useAuth0();
+  const userId = user.sub.split("|")[1];
   const serverUrl = process.env.REACT_APP_SERVER_URL;
   const [bookList, setBookList] = useState([]);
 
@@ -31,6 +32,21 @@ const Listings = () => {
             <h4>By {val.author}</h4>
             <h5>{val.genre}</h5>
             <p>Listed by {val.userEmail}</p>
+            {!!val.swap && <h4>Available for swap</h4>}
+            {!!val.giveAway && <h4>Available for free (no swap)</h4>}
+            {val.userId !== userId && (
+              <button
+                id="requestThisBook"
+                onClick={() => {
+                  window.open(
+                    "http://localhost:4040/request-a-book?bookId=" + val.id,
+                    "_self"
+                  );
+                }}
+              >
+                Request This Book
+              </button>
+            )}
           </div>
         );
       })}

@@ -14,8 +14,34 @@ const db = mysql.createPool({
 
 // Get all Listings
 listingsRouter.get("/get", (req, res) => {
-  const sqlSelect = "SELECT * FROM books";
+  const sqlSelect = "SELECT * FROM books WHERE active = true";
   db.query(sqlSelect, (err, result) => {
+    if (err) {
+      console.log(err);
+    } else {
+      res.send(result);
+    }
+  });
+});
+
+// Get all of particular user's listings
+listingsRouter.get("/get/userId=:userId", (req, res) => {
+  const userId = req.params.userId;
+  const sqlSelect = "SELECT * FROM books WHERE userId = ? AND active = true";
+  db.query(sqlSelect, userId, (err, result) => {
+    if (err) {
+      console.log(err);
+    } else {
+      res.send(result);
+    }
+  });
+});
+
+// Get a specific book Listing
+listingsRouter.get("/get/bookId=:bookId", (req, res) => {
+  const bookId = req.params.bookId;
+  const sqlSelect = "SELECT * FROM books WHERE id = ? AND active = true";
+  db.query(sqlSelect, bookId, (err, result) => {
     if (err) {
       console.log(err);
     } else {
@@ -27,7 +53,7 @@ listingsRouter.get("/get", (req, res) => {
 // Get my listings
 listingsRouter.get("/my-listings/get", checkJwt, (req, res) => {
   const userId = req.query.userId;
-  const sqlSelect = "SELECT * FROM books WHERE userId = ?";
+  const sqlSelect = "SELECT * FROM books WHERE userId = ? AND active = true";
   db.query(sqlSelect, userId, (err, result) => {
     if (err) {
       console.log(err);
@@ -87,6 +113,67 @@ listingsRouter.delete("/my-listings/delete/", checkJwt, (req, res) => {
     }
   });
 });
+
+// update a listing when request is approved (make inactive)
+listingsRouter.put(
+  "/my-listings/update/request-approved",
+  checkJwt,
+  (req, res) => {
+    const bookId = req.body.bookId;
+    const userId = req.body.userId;
+    const status = req.body.status;
+    const sqlUpdate =
+      "UPDATE books SET active = false, closedOn = CURRENT_TIMESTAMP, status = ?  WHERE id = ? AND userId = ?";
+    db.query(sqlUpdate, [status, bookId, userId], (err, result) => {
+      if (err) {
+        console.log("failed");
+        res.send(err);
+        console.log(err);
+      } else {
+        console.log("success");
+        console.log(result);
+        res.send(result);
+      }
+    });
+  }
+);
+
+// update when a request is made (increment no of requests and set requested as true)
+listingsRouter.put("/my-listings/update/request-sent", checkJwt, (req, res) => {
+  const bookId = req.body.bookId;
+  const userId = req.body.userId;
+  const sqlUpdate =
+    "UPDATE books SET numberOfRequests = numberOfRequests+1, requested = true WHERE id = ? AND userId = ?;";
+  db.query(sqlUpdate, [bookId, userId], (err, result) => {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log(result);
+      res.send(result);
+    }
+  });
+});
+
+// update a request declined (decrement no of requests and set requested as false if numberOfRequests = 0)
+//TODO
+listingsRouter.put(
+  "/my-listings/update/request-declined",
+  checkJwt,
+  (req, res) => {
+    const bookId = req.body.bookId;
+    const userId = req.body.userId;
+    const sqlUpdate =
+      "UPDATE books SET numberOfRequests = numberOfRequests-1, requested = false WHERE id = ? AND userId = ?;";
+    db.query(sqlUpdate, [bookId, userId], (err, result) => {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log(result);
+        res.send(result);
+      }
+    });
+  }
+);
 
 // Update my listing
 listingsRouter.put("/my-listings/update/", checkJwt, (req, res) => {

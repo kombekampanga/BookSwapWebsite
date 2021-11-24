@@ -126,24 +126,34 @@ const MyAccount = () => {
       <br />
       {/* {JSON.stringify(user, null, 2)} */}
       <h2>Notifications</h2>
-      <div className="notifications">
-        {swapRequestedNotificationsList.map((val) => {
-          return (
-            <div className="card">
-              <h4>Swap Requested Notifications</h4>
-              <p>{val.message}</p>
-            </div>
-          );
-        })}
-        {swapConfirmedNotificationsList.map((val) => {
-          return (
-            <div className="card">
-              <h4>Swap Confirmed Notifications</h4>
-              <p>{val.message}</p>
-            </div>
-          );
-        })}
-      </div>
+      {swapRequestedNotificationsList.length === 0 &&
+      swapConfirmedNotificationsList.length === 0 ? (
+        <div className="noNotifications">
+          <div className="card">
+            <p>You have no notifications</p>
+          </div>
+        </div>
+      ) : (
+        <div className="notifications">
+          {swapRequestedNotificationsList.map((val) => {
+            return (
+              <div className="card">
+                <h4>Swap Requested Notifications</h4>
+                <p>{val.message}</p>
+              </div>
+            );
+          })}
+          {swapConfirmedNotificationsList.map((val) => {
+            return (
+              <div className="card">
+                <h4>Swap Confirmed Notifications</h4>
+                <p>{val.message}</p>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
       <br />
       <h2>Books I've Requested</h2>
       {booksIRequestedList.length === 0 ? (
@@ -171,25 +181,9 @@ const MyAccount = () => {
                 <p>Listed by {val.listerEmail}</p>
                 <p>Requested on: {val.createdOn}</p>
                 <br />
-                {!!val.swap == true && (
-                  <>
-                    <h2>Swapping with my book: </h2>
-                    <br />
-                    <h4>{val.bookImSwappingTitle}</h4>
-                    {val.bookImSwappingImage === "" ? (
-                      <img
-                        src="https://res.cloudinary.com/dmxlueraz/image/upload/v1637478934/missing-picture-page-for-website_dmujoj.jpg"
-                        alt="No Image"
-                      />
-                    ) : (
-                      <img src={val.bookImSwappingImage} alt="Listing Image" />
-                    )}
-                    <h4>By {val.bookImSwappingAuthor}</h4>
-                    <h5>{val.bookImSwappingGenre}</h5>
-                  </>
-                )}
-                {!!val.giveAway == true && (
-                  <h4>Requesting this book for free (no swap)</h4>
+                {!!val.swap === true && <h5>You are offering a swap </h5>}
+                {!!val.swap === false && (
+                  <h5>You are requesting this for free (no swap) </h5>
                 )}
               </div>
             );
@@ -223,31 +217,27 @@ const MyAccount = () => {
                 <h6>Requested by {val.requestedBy}</h6>
                 <p>Requested on: {val.createdOn}</p>
                 <br />
-                {!!val.swap == true && (
-                  <>
-                    <h2>Book offered for swap: </h2>
-                    <br />
-                    <h4>{val.bookOfferedForSwappingTitle}</h4>
-                    {val.bookOfferedForSwappingImage === "" ? (
-                      <img
-                        src="https://res.cloudinary.com/dmxlueraz/image/upload/v1637478934/missing-picture-page-for-website_dmujoj.jpg"
-                        alt="No Image"
-                      />
-                    ) : (
-                      <img
-                        src={val.bookOfferedForSwappingImage}
-                        alt="Listing Image"
-                      />
-                    )}
-                    <h4>By {val.bookOfferedForSwappingAuthor}</h4>
-                    <h5>{val.bookOfferedForSwappingGenre}</h5>
-                  </>
+                {!!val.swap === true && (
+                  <h5>{val.requestedBy} is requesting a swap</h5>
                 )}
-                {!!val.giveAway == true && (
-                  <h4>
+                {!!val.swap === false && (
+                  <h5>
                     {val.requestedBy} is requesting this book for free (no swap)
-                  </h4>
+                  </h5>
                 )}
+                <button
+                  onClick={() => {
+                    window.open(
+                      "http://localhost:4040/respond-to-request?bookId=" +
+                        val.bookId +
+                        "?reqId=" +
+                        val.requestId,
+                      "_self"
+                    );
+                  }}
+                >
+                  Respond to Request
+                </button>
               </div>
             );
           })}

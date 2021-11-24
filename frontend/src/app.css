@@ -59,7 +59,7 @@
 .card {
   display: flex;
   width: 800px;
-  height: 500px;
+  height: 550px;
   border: 2px solid black;
   border-radius: 15px;
   margin: 20px;
@@ -109,6 +109,18 @@
   align-items: center;
   justify-content: center;
 }
+
+.notifications .card {
+  display: flex;
+  width: 500px;
+  height: 200px;
+  border: 2px solid black;
+  border-radius: 15px;
+  font-family: "Trebuchet MS";
+  justify-content: space-between;
+  align-items: center;
+}
+
 .myAccount .card {
   display: flex;
   width: 500px;
@@ -142,4 +154,34 @@
   font-family: "Trebuchet MS";
   justify-content: space-between;
   align-items: center;
+}
+
+.selectBookToSwap {
+  display: flex;
+  align-self: flex-end;
+  /* margin-left: 50%; */
+}
+
+.selectBookToSwap input[type="checkbox"] {
+  width: 15mm;
+  height: 15mm;
+  margin-right: 20px;
+}
+
+.requestAbook {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.requestFooter {
+  flex: 20%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.requestFooter button {
+  margin-left: 10px;
 }

@@ -126,11 +126,12 @@ const MyListings = () => {
           },
         }
       )
-        .then(() => {
+        .then((response) => {
           setSaving(false);
           alert(updatedBookTitle + " listing updated");
+          console.log(response);
           finishEditEventHandler();
-          window.location.reload();
+          //window.location.reload();
         })
         .catch((err) => {
           setSaving(false);
@@ -178,6 +179,8 @@ const MyListings = () => {
 
             <h4>By {val.author}</h4>
             <p>{val.genre}</p>
+            {!!val.swap && <p>Available for swap</p>}
+            {!!val.giveAway && <p>Available for free (no swap)</p>}
 
             <div id="editListing">
               <button
@@ -325,8 +328,17 @@ const MyListings = () => {
               <button onClick={() => finishEditEventHandler()}>Cancel</button>
               <button
                 onClick={() => {
-                  setSaving(true);
-                  updateListing(selectedBook.id);
+                  if (
+                    updatedAvailableForSwap === false &&
+                    updatedAvailableToGiveAway === false
+                  ) {
+                    alert(
+                      "Please select whether the book is available for swap and/ or free give away"
+                    );
+                  } else {
+                    setSaving(true);
+                    updateListing(selectedBook.id);
+                  }
                 }}
               >
                 Save
