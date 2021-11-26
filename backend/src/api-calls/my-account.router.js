@@ -109,18 +109,23 @@ myAccountRouter.post("/my-requests/insert", checkJwt, (req, res) => {
   const listerId = req.body.listerId;
   const requesterId = req.body.requesterId;
   const swap = req.body.swap;
+  const requesterEmail = req.body.requesterEmail;
 
   const sqlInsert =
-    "INSERT INTO requests (bookId, listerId, requesterId, swap, active, status) VALUES (?,?,?,?,TRUE,'open')";
+    "INSERT INTO requests (bookId, listerId, requesterId, requesterEmail, swap, active, status) VALUES (?,?,?,?,?,TRUE,'open')";
 
-  db.query(sqlInsert, [bookId, listerId, requesterId, swap], (err, result) => {
-    if (err) {
-      console.log(err);
-    } else {
-      console.log(result.insertId);
-      res.send(result);
+  db.query(
+    sqlInsert,
+    [bookId, listerId, requesterId, requesterEmail, swap],
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log(result.insertId);
+        res.send(result);
+      }
     }
-  });
+  );
 });
 
 // Update a request when accepted

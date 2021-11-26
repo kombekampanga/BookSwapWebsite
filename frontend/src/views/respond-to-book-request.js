@@ -4,6 +4,7 @@ import Axios from "axios";
 import Modal from "react-modal";
 import { Checkbox, FormControlLabel } from "@material-ui/core";
 import "./editListingModal.css";
+import emailjs from "emailjs-com";
 
 const RespondToBookRequest = () => {
   const requestedBookId = window.location.search.split("?")[1].split("=")[1];
@@ -109,10 +110,8 @@ const RespondToBookRequest = () => {
   const acceptRequest = async () => {
     const token = await getAccessTokenSilently();
     const status = wantToSwap ? "swapped" : "given away";
-    console.log(status);
 
-    // update request
-    Axios.put(
+    const updateRequest = Axios.put(
       serverUrl + "/api/my-account/my-requests/update/accepted",
       {
         requestId: requestId,
@@ -126,45 +125,52 @@ const RespondToBookRequest = () => {
           Authorization: `Bearer ${token}`,
         },
       }
-    )
-      .then(() => {
-        // make listing inactive
-        Axios.put(
-          serverUrl + "/api/listings/my-listings/update/request-approved",
-          {
-            userId: userId,
-            bookId: requestedBookId,
-            status: status,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        )
-          .then(() => {
-            // Send notification to requester
-            Axios.post(
-              serverUrl + "/api/my-account/notifications/swap-confirmed/insert",
-              {
-                requesterId: requestInfo.requesterId,
-                message:
-                  "Woohoo! Your request for " +
-                  requestedBook.title +
-                  " has been accepted! Please email " +
-                  requestedBook.userEmail +
-                  " to get your book :D",
-              },
-              {
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                },
-              }
-            );
-          })
-          .then(() => {
+    );
+
+    const makeListingInactive = Axios.put(
+      serverUrl + "/api/listings/my-listings/update/request-approved",
+      {
+        userId: userId,
+        bookId: requestedBookId,
+        status: status,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    // Send notification to requester
+    const sendNotification = Axios.post(
+      serverUrl + "/api/my-account/notifications/swap-confirmed/insert",
+      {
+        requesterId: requestInfo.requesterId,
+        message:
+          "Woohoo! Your request for " +
+          requestedBook.title +
+          " has been accepted! Please email " +
+          requestedBook.userEmail +
+          " to get your book :D",
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    Axios.all([updateRequest, makeListingInactive, sendNotification])
+      .then(
+        Axios.spread(
+          (requestResponse, inactiveResponse, notificationResponse) => {
+            console.log({
+              requestResponse,
+              inactiveResponse,
+              notificationResponse,
+            });
+
             // if a book was swapped then make the swapped book inactive too
-            // TODO: When this fails it doesnt catch the error! it still sends :(
             if (wantToSwap) {
               Axios.put(
                 serverUrl + "/api/listings/my-listings/update/request-approved",
@@ -178,18 +184,15 @@ const RespondToBookRequest = () => {
                     Authorization: `Bearer ${token}`,
                   },
                 }
-              ).catch((err) => {
-                setSubmitting(false);
-                console.log(err.response);
-                alert(err.response.data);
-                return;
-              });
+              );
             }
+
             setSubmitting(false);
             alert("Book request accepted");
             window.open("http://localhost:4040/myaccount", "_self");
-          });
-      })
+          }
+        )
+      )
       .catch((err) => {
         setSubmitting(false);
         console.log(err.response);
@@ -197,14 +200,43 @@ const RespondToBookRequest = () => {
         return;
       });
 
-    setSubmitting(false);
+    //send email
+    console.log("sending email");
+    emailjs
+      .send(
+        "service_39oqr2j",
+        "template_p97f7y7",
+        {
+          userEmail: requestInfo.requesterEmail,
+          bookTitle: requestedBook.Title,
+          listerEmail: requestedBook.userEmail,
+          message: `Your request for ${requestedBook.Title} has been accepted! View your request`,
+          listerContactMessage: `Please contact ${requestedBook.userEmail} to organise the swap.`,
+        },
+        "user_YEtRXLga6A6g1bNvKKVwb"
+      )
+      .then(
+        function (response) {
+          console.log("SUCCESS!", response.status, response.text);
+        },
+        function (error) {
+          console.log("FAILED...", error);
+        }
+      );
   };
 
   const declineRequest = async () => {
     const token = await getAccessTokenSilently();
 
+    emailjs.send("service_39oqr2j", "template_p97f7y7", {
+      subject: "declined",
+      userEmail: requestInfo.requesterEmail,
+      message: `Your request for ${requestedBook.Title} has been declined. View your request`,
+      listerContactMessage: "",
+    });
+
     // update request
-    Axios.put(
+    const updateRequest = Axios.put(
       serverUrl + "/api/my-account/my-requests/update/declined",
       {
         requestId: requestId,
@@ -217,27 +249,37 @@ const RespondToBookRequest = () => {
           Authorization: `Bearer ${token}`,
         },
       }
-    )
-      .then(() => {
-        // Send notification to requester
-        Axios.post(
-          serverUrl + "/api/my-account/notifications/swap-confirmed/insert",
-          {
-            requesterId: requestInfo.requesterId,
-            message:
-              "Your request for " + requestedBook.title + " was declined :(",
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+    );
+
+    // Send notification to requester
+    const sendNotification = Axios.post(
+      serverUrl + "/api/my-account/notifications/swap-confirmed/insert",
+      {
+        requesterId: requestInfo.requesterId,
+        message: "Your request for " + requestedBook.title + " was declined :(",
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    Axios.all([updateRequest, sendNotification])
+      .then(
+        Axios.spread(
+          (requestResponse, inactiveResponse, notificationResponse) => {
+            console.log({
+              requestResponse,
+              inactiveResponse,
+              notificationResponse,
+            });
+            setSubmitting(false);
+            alert("Book request declined");
+            window.open("http://localhost:4040/myaccount", "_self");
           }
-        ).then(() => {
-          setSubmitting(false);
-          alert("Book request declined");
-          window.open("http://localhost:4040/myaccount", "_self");
-        });
-      })
+        )
+      )
       .catch((err) => {
         setSubmitting(false);
         console.log(err.response);
@@ -245,7 +287,28 @@ const RespondToBookRequest = () => {
         return;
       });
 
-    setSubmitting(false);
+    //send email
+    console.log("sending email");
+    emailjs
+      .send(
+        "service_39oqr2j",
+        "template_p97f7y7",
+        {
+          subject: "approved",
+          userEmail: requestInfo.requesterEmail,
+          message: `Woohoo! Your request for ${requestedBook.Title} has been accepted! View your request`,
+          listerContactMessage: `Please contact ${requestedBook.userEmail} to arrange the swap.`,
+        },
+        "user_YEtRXLga6A6g1bNvKKVwb"
+      )
+      .then(
+        function (response) {
+          console.log("SUCCESS!", response.status, response.text);
+        },
+        function (error) {
+          console.log("FAILED...", error);
+        }
+      );
   };
 
   useEffect(() => {
@@ -412,7 +475,7 @@ const RespondToBookRequest = () => {
             <br />
             <div className="modalBody">
               <div>
-                <h2>You are requesting:</h2>
+                <h2>You are swapping:</h2>
                 <br />
                 <h3>{requestedBook.title}</h3>
                 <h6>By {requestedBook.author}</h6>
@@ -426,7 +489,6 @@ const RespondToBookRequest = () => {
                 )}
 
                 <p>{requestedBook.genre}</p>
-                <h6>Listed By: {requestedBook.userEmail}</h6>
               </div>
               <br />
               <div>

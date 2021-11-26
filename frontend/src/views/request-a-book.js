@@ -4,6 +4,7 @@ import Axios from "axios";
 import Modal from "react-modal";
 import { Checkbox, FormControlLabel } from "@material-ui/core";
 import "./editListingModal.css";
+import emailjs from "emailjs-com";
 
 const RequestABook = () => {
   const requestedBookId = window.location.search.split("=")[1];
@@ -57,15 +58,16 @@ const RequestABook = () => {
   };
 
   const submitRequest = async () => {
+    console.log(user.email);
     const token = await getAccessTokenSilently();
 
-    // create request record
-    Axios.post(
+    const createRequest = Axios.post(
       serverUrl + "/api/my-account/my-requests/insert",
       {
         bookId: requestedBookId,
         listerId: requestedBook.userId,
         requesterId: userId,
+        requesterEmail: user.email,
         swap: wantToSwap,
       },
       {
@@ -73,34 +75,60 @@ const RequestABook = () => {
           Authorization: `Bearer ${token}`,
         },
       }
-    )
-      .then((response) => {
-        console.log(response);
-        // Send notification to lister
-        Axios.post(
-          serverUrl + "/api/my-account/notifications/swap-requested/insert",
-          {
-            userId: requestedBook.userId,
-            message: "Someone wants your book",
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        ).then(() => {
+    );
+
+    const sendNotification = Axios.post(
+      serverUrl + "/api/my-account/notifications/swap-requested/insert",
+      {
+        userId: requestedBook.userId,
+        message: "Someone wants your book",
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    Axios.all([createRequest, sendNotification])
+      .then(
+        Axios.spread((requestResponse, notificationResponse) => {
+          console.log({ requestResponse, notificationResponse });
           setSubmitting(false);
           alert("Book requested");
           window.open("http://localhost:4040/myaccount", "_self");
-        });
-      })
+        })
+      )
       .catch((err) => {
         setSubmitting(false);
         console.log(err.response);
         alert(err.response.data);
         return;
       });
+
+    //send email
+    console.log("sending email");
+    emailjs
+      .send(
+        "service_39oqr2j",
+        "template_z8c1tf8",
+        {
+          userEmail: requestedBook.userEmail,
+          bookTitle: requestedBook.Title,
+          requesterEmail: user.email,
+        },
+        "user_YEtRXLga6A6g1bNvKKVwb"
+      )
+      .then(
+        function (response) {
+          console.log("SUCCESS!", response.status, response.text);
+        },
+        function (error) {
+          console.log("FAILED...", error);
+        }
+      );
   };
+
   useEffect(() => {
     getRequestedBook();
   }, []);
