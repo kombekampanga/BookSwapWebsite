@@ -77,6 +77,11 @@ const RespondToBookRequest = () => {
         console.log(response.data);
         setRequestInfo(response.data[0]);
 
+        if (!!response.data[0].swap === false) {
+          setOnlyRequestingGiveAway(true);
+          setGiveAway(true);
+        }
+
         // Get requesters listings
         Axios.get(
           serverUrl +
@@ -228,13 +233,6 @@ const RespondToBookRequest = () => {
   const declineRequest = async () => {
     const token = await getAccessTokenSilently();
 
-    emailjs.send("service_39oqr2j", "template_p97f7y7", {
-      subject: "declined",
-      userEmail: requestInfo.requesterEmail,
-      message: `Your request for ${requestedBook.Title} has been declined. View your request`,
-      listerContactMessage: "",
-    });
-
     // update request
     const updateRequest = Axios.put(
       serverUrl + "/api/my-account/my-requests/update/declined",
@@ -243,6 +241,19 @@ const RespondToBookRequest = () => {
         status: "closed",
         swappedBookId: bookToSwap.id,
         listerId: userId,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const updateBook = Axios.put(
+      serverUrl + "/api/listings/my-listings/update/request-declined",
+      {
+        bookId: requestedBookId,
+        userId: requestedBook.userId,
       },
       {
         headers: {
@@ -265,20 +276,18 @@ const RespondToBookRequest = () => {
       }
     );
 
-    Axios.all([updateRequest, sendNotification])
+    Axios.all([updateRequest, updateBook, sendNotification])
       .then(
-        Axios.spread(
-          (requestResponse, inactiveResponse, notificationResponse) => {
-            console.log({
-              requestResponse,
-              inactiveResponse,
-              notificationResponse,
-            });
-            setSubmitting(false);
-            alert("Book request declined");
-            window.open("http://localhost:4040/myaccount", "_self");
-          }
-        )
+        Axios.spread((requestResponse, bookResponse, notificationResponse) => {
+          console.log({
+            requestResponse,
+            bookResponse,
+            notificationResponse,
+          });
+          setSubmitting(false);
+          alert("Book request declined");
+          window.open("http://localhost:4040/myaccount", "_self");
+        })
       )
       .catch((err) => {
         setSubmitting(false);
@@ -294,10 +303,10 @@ const RespondToBookRequest = () => {
         "service_39oqr2j",
         "template_p97f7y7",
         {
-          subject: "approved",
+          subject: "declined",
           userEmail: requestInfo.requesterEmail,
-          message: `Woohoo! Your request for ${requestedBook.Title} has been accepted! View your request`,
-          listerContactMessage: `Please contact ${requestedBook.userEmail} to arrange the swap.`,
+          message: `Your request for ${requestedBook.Title} has been declined. View your request`,
+          listerContactMessage: "",
         },
         "user_YEtRXLga6A6g1bNvKKVwb"
       )
@@ -337,54 +346,60 @@ const RespondToBookRequest = () => {
       <br />
       <br />
 
-      {onlyAvailableToGiveAway === false && onlyAvailableToSwap === false && (
-        <h1>Please choose an option for trade</h1>
-      )}
+      {onlyAvailableToGiveAway === false &&
+        onlyAvailableToSwap === false &&
+        !!requestInfo.swap === true && (
+          <h1>Please choose an option for trade</h1>
+        )}
 
-      {onlyAvailableToGiveAway === false && !!requestedBook.giveAway === true && (
-        <div>
-          <FormControlLabel
-            control={
-              <Checkbox
-                id="giveAway"
-                color="primary"
-                checked={giveAway}
-                onChange={() => {
-                  setGiveAway(!giveAway);
-                  if (!onlyAvailableToGiveAway) {
-                    document.getElementById("wantToSwap").checked = false;
-                    setWantToSwap(false);
-                  }
-                }}
-                name="giveAway"
-              />
-            }
-            label="Give this book away for free (no swap)"
-          />
-        </div>
-      )}
-      {onlyAvailableToSwap === false && !!requestedBook.swap === true && (
-        <div>
-          <FormControlLabel
-            control={
-              <Checkbox
-                id="wantToSwap"
-                color="primary"
-                checked={wantToSwap}
-                onChange={() => {
-                  setWantToSwap(!wantToSwap);
-                  if (!onlyAvailableToSwap) {
-                    document.getElementById("giveAway").checked = false;
-                    setGiveAway(false);
-                  }
-                }}
-                name="wantToSwap"
-              />
-            }
-            label="I want to offer a swap for this book"
-          />
-        </div>
-      )}
+      {onlyAvailableToGiveAway === false &&
+        !!requestedBook.giveAway === true &&
+        onlyRequestingGiveAway === false && (
+          <div>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  id="giveAway"
+                  color="primary"
+                  checked={giveAway}
+                  onChange={() => {
+                    setGiveAway(!giveAway);
+                    if (!onlyAvailableToGiveAway) {
+                      document.getElementById("wantToSwap").checked = false;
+                      setWantToSwap(false);
+                    }
+                  }}
+                  name="giveAway"
+                />
+              }
+              label="Give this book away for free (no swap)"
+            />
+          </div>
+        )}
+      {onlyAvailableToSwap === false &&
+        !!requestedBook.swap === true &&
+        !!requestInfo.swap === true && (
+          <div>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  id="wantToSwap"
+                  color="primary"
+                  checked={wantToSwap}
+                  onChange={() => {
+                    setWantToSwap(!wantToSwap);
+                    if (!onlyAvailableToSwap) {
+                      document.getElementById("giveAway").checked = false;
+                      setGiveAway(false);
+                    }
+                  }}
+                  name="wantToSwap"
+                />
+              }
+              label="I want to offer a swap for this book"
+            />
+          </div>
+        )}
       <br />
       {giveAway && <h1>Giving this book away for free</h1>}
       <br />

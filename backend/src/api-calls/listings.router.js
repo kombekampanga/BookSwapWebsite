@@ -163,8 +163,8 @@ listingsRouter.put(
     const bookId = req.body.bookId;
     const userId = req.body.userId;
     const sqlUpdate =
-      "UPDATE books SET numberOfRequests = numberOfRequests-1, requested = false WHERE id = ? AND userId = ?;";
-    db.query(sqlUpdate, [bookId, userId], (err, result) => {
+      "UPDATE books SET requested = IF (numberOfRequests = 1, false, true), numberOfRequests = numberOfRequests-1  WHERE id = ? AND userId = ?";
+    db.query(sqlUpdate, [bookId, userId, bookId, userId], (err, result) => {
       if (err) {
         console.log(err);
       } else {

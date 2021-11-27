@@ -77,6 +77,19 @@ const RequestABook = () => {
       }
     );
 
+    const updateBook = Axios.put(
+      serverUrl + "/api/listings/my-listings/update/request-sent",
+      {
+        bookId: requestedBookId,
+        userId: requestedBook.userId,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
     const sendNotification = Axios.post(
       serverUrl + "/api/my-account/notifications/swap-requested/insert",
       {
@@ -90,14 +103,20 @@ const RequestABook = () => {
       }
     );
 
-    Axios.all([createRequest, sendNotification])
+    Axios.all([createRequest, updateBook, sendNotification])
       .then(
-        Axios.spread((requestResponse, notificationResponse) => {
-          console.log({ requestResponse, notificationResponse });
-          setSubmitting(false);
-          alert("Book requested");
-          window.open("http://localhost:4040/myaccount", "_self");
-        })
+        Axios.spread(
+          (requestResponse, bookNotification, notificationResponse) => {
+            console.log({
+              requestResponse,
+              bookNotification,
+              notificationResponse,
+            });
+            setSubmitting(false);
+            alert("Book requested");
+            window.open("http://localhost:4040/myaccount", "_self");
+          }
+        )
       )
       .catch((err) => {
         setSubmitting(false);
