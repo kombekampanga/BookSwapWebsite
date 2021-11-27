@@ -116,6 +116,46 @@ const MyAccount = () => {
     //   });
   };
 
+  const removeRequestNotification = async (notificationId) => {
+    const token = await getAccessTokenSilently();
+    Axios.delete(
+      serverUrl + "/api/my-account/notifications/swap-requested/delete",
+      {
+        data: { userId: userId, notificationId: notificationId },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
+      .then(() => {
+        console.log("notification removed");
+      })
+      .catch((err) => {
+        console.log(err.response);
+        alert(err.response.data);
+      });
+  };
+
+  const removeConfirmNotification = async (notificationId) => {
+    const token = await getAccessTokenSilently();
+    Axios.delete(
+      serverUrl + "/api/my-account/notifications/swap-confirmed/delete",
+      {
+        data: { userId: userId, notificationId: notificationId },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
+      .then(() => {
+        console.log("notification removed");
+      })
+      .catch((err) => {
+        console.log(err.response);
+        alert(err.response.data);
+      });
+  };
+
   useEffect(() => {
     getMyAccountDetails();
   }, []);
@@ -138,6 +178,17 @@ const MyAccount = () => {
           {swapRequestedNotificationsList.map((val) => {
             return (
               <div className="card">
+                <div className="notificationXBtn">
+                  <button
+                    onClick={() => {
+                      removeRequestNotification(val.id);
+                      window.location.reload();
+                    }}
+                  >
+                    X
+                  </button>
+                </div>
+
                 <h4>Swap Requested Notifications</h4>
                 <p>{val.message}</p>
               </div>
@@ -146,6 +197,17 @@ const MyAccount = () => {
           {swapConfirmedNotificationsList.map((val) => {
             return (
               <div className="card">
+                <div className="notificationXBtn">
+                  <button
+                    onClick={() => {
+                      removeConfirmNotification(val.id);
+                      window.location.reload();
+                    }}
+                  >
+                    X
+                  </button>
+                </div>
+
                 <h4>Swap Confirmed Notifications</h4>
                 <p>{val.message}</p>
               </div>

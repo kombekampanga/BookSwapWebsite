@@ -89,6 +89,48 @@ myAccountRouter.post(
   }
 );
 
+// delete swap requested notification
+myAccountRouter.delete(
+  "/notifications/swap-requested/delete",
+  checkJwt,
+  (req, res) => {
+    const userId = req.body.userId;
+    const notificationId = req.body.notificationId;
+
+    const sqlDelete =
+      "DELETE FROM swap_requested_notification WHERE userId = ? AND id = ?";
+
+    db.query(sqlDelete, [userId, notificationId], (err, result) => {
+      if (err) {
+        console.log(err);
+      } else {
+        res.send(result);
+      }
+    });
+  }
+);
+
+// delete swap confirmed notification
+myAccountRouter.delete(
+  "/notifications/swap-confirmed/delete",
+  checkJwt,
+  (req, res) => {
+    const userId = req.body.requesterId;
+    const notificationId = req.body.notificationId;
+
+    const sqlDelete =
+      "DELETE FROM swap_requested_notification WHERE userId = ? AND id = ?";
+
+    db.query(sqlDelete, [userId, notificationId], (err, result) => {
+      if (err) {
+        console.log(err);
+      } else {
+        res.send(result);
+      }
+    });
+  }
+);
+
 // Get books i've requested
 myAccountRouter.get("/my-requests/get", checkJwt, (req, res) => {
   const userId = req.query.userId;

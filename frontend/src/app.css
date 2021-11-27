@@ -185,3 +185,15 @@
 .requestFooter button {
   margin-left: 10px;
 }
+
+.notificationXBtn {
+  display: flex;
+  align-self: flex-end;
+}
+
+.notificationXBtn button {
+  background-color: transparent;
+  border: none;
+  font-size: 25px;
+  cursor: pointer;
+}

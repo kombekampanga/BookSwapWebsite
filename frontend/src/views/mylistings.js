@@ -131,7 +131,7 @@ const MyListings = () => {
           alert(updatedBookTitle + " listing updated");
           console.log(response);
           finishEditEventHandler();
-          //window.location.reload();
+          window.location.reload();
         })
         .catch((err) => {
           setSaving(false);
