@@ -213,9 +213,9 @@ const RespondToBookRequest = () => {
         "template_p97f7y7",
         {
           userEmail: requestInfo.requesterEmail,
-          bookTitle: requestedBook.Title,
+          bookTitle: requestedBook.title,
           listerEmail: requestedBook.userEmail,
-          message: `Your request for ${requestedBook.Title} has been accepted! View your request`,
+          message: `Your request for ${requestedBook.title} has been accepted! View your request`,
           listerContactMessage: `Please contact ${requestedBook.userEmail} to organise the swap.`,
         },
         "user_YEtRXLga6A6g1bNvKKVwb"
@@ -305,7 +305,7 @@ const RespondToBookRequest = () => {
         {
           subject: "declined",
           userEmail: requestInfo.requesterEmail,
-          message: `Your request for ${requestedBook.Title} has been declined. View your request`,
+          message: `Your request for ${requestedBook.title} has been declined. View your request`,
           listerContactMessage: "",
         },
         "user_YEtRXLga6A6g1bNvKKVwb"
