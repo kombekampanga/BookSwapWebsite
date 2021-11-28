@@ -77,7 +77,7 @@ myAccountRouter.post(
     const message = req.body.message;
 
     const sqlInsert =
-      "INSERT INTO swap_requested_notification (userId, message) VALUES (?,?)";
+      "INSERT INTO swap_confirmed_notification (userId, message) VALUES (?,?)";
 
     db.query(sqlInsert, [userId, message], (err, result) => {
       if (err) {
