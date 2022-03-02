@@ -13,6 +13,7 @@ const ListABook = () => {
   const [bookTitle, setBookTitle] = useState("");
   const [bookAuthor, setBookAuthor] = useState("");
   const [bookGenre, setBookGenre] = useState("");
+  const [bookDescription, setBookDescription] = useState("");
   const [bookList, setBookList] = useState([]);
   const [imageSelected, setImageSelected] = useState({});
   const [newListingImageUrl, setNewListingImageUrl] = useState("");
@@ -73,6 +74,7 @@ const ListABook = () => {
             bookTitle: bookTitle,
             bookAuthor: bookAuthor,
             bookGenre: bookGenre,
+            bookDescription: bookDescription,
             availableForSwap: availableForSwap,
             availableToGiveAway: availableToGiveAway,
           },
@@ -121,6 +123,15 @@ const ListABook = () => {
           type="text"
           name="Genre"
           onChange={(e) => setBookGenre(e.target.value)}
+        />
+
+        <label>Description:</label>
+        <textarea
+          className="description"
+          type="text"
+          name="Description"
+          maxlength="1500"
+          onChange={(e) => setBookDescription(e.target.value)}
         />
 
         <label>Upload an Image:</label>

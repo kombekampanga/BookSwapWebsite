@@ -23,6 +23,7 @@ const MyListings = () => {
   const [updatedBookTitle, setUpdatedBookTitle] = useState("");
   const [updatedBookAuthor, setUpdatedBookAuthor] = useState("");
   const [updatedBookGenre, setUpdatedBookGenre] = useState("");
+  const [updatedBookDescription, setUpdatedBookDescription] = useState("");
   const [updatedBookImageUrl, setUpdatedBookImageUrl] = useState("");
   const [imageHasChanged, setImageHasChanged] = useState(false);
   const [uploadedBookImage, setUploadedBookImage] = useState({});
@@ -80,6 +81,7 @@ const MyListings = () => {
     setUpdatedBookTitle(val.title);
     setUpdatedBookAuthor(val.author);
     setUpdatedBookGenre(val.genre);
+    setUpdatedBookDescription(val.description);
     setUpdatedBookImageUrl(val.image);
     setImageHasChanged(false);
     // !! to turn integer into boolean
@@ -93,6 +95,7 @@ const MyListings = () => {
     setUpdatedBookTitle("");
     setUpdatedBookAuthor("");
     setUpdatedBookGenre("");
+    setUpdatedBookDescription("");
     setUpdatedBookImageUrl("");
     setImageHasChanged(false);
     setImageHasChanged(false);
@@ -116,6 +119,8 @@ const MyListings = () => {
           bookTitle: updatedBookTitle,
           bookAuthor: updatedBookAuthor,
           bookGenre: updatedBookGenre,
+          bookGenre: updatedBookGenre,
+          bookDescription: updatedBookDescription,
           bookImageUrl: imageUrl,
           availableForSwap: updatedAvailableForSwap,
           availableToGiveAway: updatedAvailableToGiveAway,
@@ -179,8 +184,10 @@ const MyListings = () => {
 
             <h4>By {val.author}</h4>
             <p>{val.genre}</p>
-            {!!val.swap && <p>Available for swap</p>}
-            {!!val.giveAway && <p>Available for free (no swap)</p>}
+            <h4>Description:</h4>
+            <p>{val.description}</p>
+            {!!val.swap && <h4>Available for swap</h4>}
+            {!!val.giveAway && <h4>Available for free (no swap)</h4>}
 
             <div id="editListing">
               <button
@@ -288,6 +295,19 @@ const MyListings = () => {
                   defaultValue={selectedBook.genre}
                   onChange={(e) => {
                     setUpdatedBookGenre(e.target.value);
+                  }}
+                />
+              </div>
+              <div>
+                <label>Description:</label>
+                <textarea
+                  className="description"
+                  type="text"
+                  name="Description"
+                  defaultValue={selectedBook.description}
+                  maxlength="1500"
+                  onChange={(e) => {
+                    setUpdatedBookDescription(e.target.value);
                   }}
                 />
               </div>

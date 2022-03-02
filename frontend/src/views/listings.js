@@ -32,6 +32,13 @@ const Listings = () => {
             <h4>By {val.author}</h4>
             <h5>{val.genre}</h5>
             <p>Listed by {val.userEmail}</p>
+            <h4>Description:</h4>
+            {val.description === null ? (
+              <p>No description</p>
+            ) : (
+              <p>{val.description}</p>
+            )}
+
             {!!val.swap && <h4>Available for swap</h4>}
             {!!val.giveAway && <h4>Available for free (no swap)</h4>}
             {val.userId !== userId && (

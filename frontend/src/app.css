@@ -48,6 +48,13 @@
   font-size: 14px;
 }
 
+.description {
+  width: 300px;
+  height: 180px;
+  margin: 10px;
+  font-size: 14px;
+}
+
 .listabook {
   text-align: center;
 }
@@ -59,7 +66,6 @@
 .card {
   display: flex;
   width: 800px;
-  height: 550px;
   border: 2px solid black;
   border-radius: 15px;
   margin: 20px;
