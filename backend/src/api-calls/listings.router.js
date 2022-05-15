@@ -63,6 +63,18 @@ listingsRouter.get("/my-listings/get", checkJwt, (req, res) => {
   });
 });
 
+// Get genres
+listingsRouter.get("/genres/get", checkJwt, (req, res) => {
+  const sqlSelect = "SELECT * FROM genres";
+  db.query(sqlSelect, (err, result) => {
+    if (err) {
+      console.log(err);
+    } else {
+      res.send(result);
+    }
+  });
+});
+
 // Add a listing
 listingsRouter.post("/my-listings/insert", checkJwt, (req, res) => {
   const imageUrl = req.body.imageUrl;
@@ -70,19 +82,21 @@ listingsRouter.post("/my-listings/insert", checkJwt, (req, res) => {
   const userEmail = req.body.userEmail;
   const bookTitle = req.body.bookTitle;
   const bookAuthor = req.body.bookAuthor;
-  const bookGenre = req.body.bookGenre;
+  const bookGenres = req.body.bookGenres;
   const availableForSwap = req.body.availableForSwap;
   const availableToGiveAway = req.body.availableToGiveAway;
   const bookDescription = req.body.bookDescription;
+  console.log(res.body.bookGenres);
+  console.log(bookGenres);
 
   const sqlInsert =
-    "INSERT INTO books (title, author, genre, description, userId, userEmail, image, swap, giveAway, modifiedOn, active, status) VALUES (?,?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP, TRUE, 'open')";
+    "INSERT INTO books (title, author, genres, description, userId, userEmail, image, swap, giveAway, modifiedOn, active, status) VALUES (?,?,(?),?,?,?,?,?,?,CURRENT_TIMESTAMP, TRUE, 'open')";
   db.query(
     sqlInsert,
     [
       bookTitle,
       bookAuthor,
-      bookGenre,
+      bookGenres,
       bookDescription,
       userId,
       userEmail,

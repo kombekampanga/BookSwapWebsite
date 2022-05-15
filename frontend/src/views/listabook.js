@@ -12,14 +12,15 @@ const ListABook = () => {
 
   const [bookTitle, setBookTitle] = useState("");
   const [bookAuthor, setBookAuthor] = useState("");
-  const [bookGenre, setBookGenre] = useState("");
   const [bookDescription, setBookDescription] = useState("");
   const [bookList, setBookList] = useState([]);
+  const [genreList, setGenreList] = useState([]);
   const [imageSelected, setImageSelected] = useState({});
   const [newListingImageUrl, setNewListingImageUrl] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [availableForSwap, setAvailableForSwap] = useState(false);
   const [availableToGiveAway, setAvailableToGiveAway] = useState(false);
+  const [bookGenres, setBookGenres] = useState([]);
 
   const getMyListings = async () => {
     const token = await getAccessTokenSilently();
@@ -39,8 +40,26 @@ const ListABook = () => {
       });
   };
 
+  const getGenres = async () => {
+    const token = await getAccessTokenSilently();
+
+    Axios.get(serverUrl + "/api/listings/genres/get", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((response) => {
+        setGenreList(response.data);
+      })
+      .catch((err) => {
+        console.log(err.response);
+        alert(err.response.data);
+      });
+  };
+
   useEffect(() => {
     getMyListings();
+    getGenres();
   }, []);
 
   const addListing = async () => {
@@ -64,6 +83,17 @@ const ListABook = () => {
         console.log(response.data.url);
         setNewListingImageUrl(response.data.url);
 
+        //format genres list into ("<genre 1>,<genre 2>,<genre 3>,...")
+        let genreString = "";
+        bookGenres.map((genre) => {
+          genreString += genre + ",";
+        });
+        // remove trailing commas
+        genreString = genreString.replace(/(^,)|(,$)/g, "");
+        console.log(genreString);
+        console.log([genreString]);
+        console.log(new Set([genreString]));
+
         // Add to database
         Axios.post(
           serverUrl + "/api/listings/my-listings/insert",
@@ -73,7 +103,7 @@ const ListABook = () => {
             userEmail: email,
             bookTitle: bookTitle,
             bookAuthor: bookAuthor,
-            bookGenre: bookGenre,
+            bookGenres: genreString,
             bookDescription: bookDescription,
             availableForSwap: availableForSwap,
             availableToGiveAway: availableToGiveAway,
@@ -100,6 +130,35 @@ const ListABook = () => {
       });
   };
 
+  const addSelectedGenres = () => {
+    const genres = Array.from(
+      document.querySelectorAll('input[type="checkbox"]')
+    )
+      .filter((checkbox) => checkbox.checked)
+      .map((checkbox) => checkbox.value);
+
+    setBookGenres(genres);
+  };
+
+  function myFunction() {
+    document.getElementById("myDropdown").classList.toggle("show");
+  }
+
+  function filterFunction() {
+    const input = document.getElementById("myInput");
+    const filter = input.value.toUpperCase();
+    const div = document.getElementById("myDropdown");
+    let a = div.getElementsByTagName("span");
+    for (let i = 0; i < a.length; i++) {
+      const txtValue = a[i].textContent || a[i].innerText;
+      if (txtValue.toUpperCase().indexOf(filter) > -1) {
+        a[i].style.display = "";
+      } else {
+        a[i].style.display = "none";
+      }
+    }
+  }
+
   return (
     <div className="listabook">
       <h1>List a Book</h1>
@@ -118,19 +177,69 @@ const ListABook = () => {
           onChange={(e) => setBookAuthor(e.target.value)}
         />
 
-        <label>Genre:</label>
-        <input
+        <label>Genres:</label>
+        <ul style={{ textAlign: "left" }}>
+          {bookGenres.map((val) => {
+            return (
+              <span>
+                <li>{val}</li>
+              </span>
+            );
+          })}
+        </ul>
+        <div className="dropdown">
+          <button
+            onClick={(e) => {
+              myFunction();
+            }}
+            className="dropbtn"
+          >
+            Search genres
+          </button>
+          <div id="myDropdown" className="dropdown-content">
+            <input
+              type="text"
+              placeholder="Search.."
+              id="myInput"
+              onKeyUp={(e) => {
+                filterFunction();
+              }}
+            />
+            {genreList.map((val) => {
+              return (
+                <span>
+                  <input
+                    style={{ width: "20px", height: "20px" }}
+                    type="checkbox"
+                    id={val.genre}
+                    name={val.genre}
+                    value={val.genre}
+                    onClick={(e) => {
+                      addSelectedGenres();
+                    }}
+                  />
+                  <label htmlFor={val.genre}>{val.genre}</label>
+                  <br></br>
+                </span>
+              );
+            })}
+          </div>
+        </div>
+        <br />
+        <br />
+
+        {/* <input
           type="text"
           name="Genre"
           onChange={(e) => setBookGenre(e.target.value)}
-        />
+        /> */}
 
         <label>Description:</label>
         <textarea
           className="description"
           type="text"
           name="Description"
-          maxlength="1500"
+          maxLength="1500"
           onChange={(e) => setBookDescription(e.target.value)}
         />
 

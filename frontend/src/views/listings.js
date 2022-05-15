@@ -30,7 +30,9 @@ const Listings = () => {
               <img src={val.image} alt="Listing Image" />
             )}
             <h4>By {val.author}</h4>
-            <h5>{val.genre}</h5>
+            {val.genres !== null && (
+              <h5> {val.genres.replaceAll(",", ", ")}</h5>
+            )}
             <p>Listed by {val.userEmail}</p>
             <h4>Description:</h4>
             {val.description === null ? (

@@ -22,7 +22,7 @@ const MyListings = () => {
 
   const [updatedBookTitle, setUpdatedBookTitle] = useState("");
   const [updatedBookAuthor, setUpdatedBookAuthor] = useState("");
-  const [updatedBookGenre, setUpdatedBookGenre] = useState("");
+  const [updatedBookGenres, setUpdatedBookGenres] = useState([]);
   const [updatedBookDescription, setUpdatedBookDescription] = useState("");
   const [updatedBookImageUrl, setUpdatedBookImageUrl] = useState("");
   const [imageHasChanged, setImageHasChanged] = useState(false);
@@ -31,6 +31,7 @@ const MyListings = () => {
   const [updatedAvailableForSwap, setUpdatedAvailableForSwap] = useState("");
   const [updatedAvailableToGiveAway, setUpdatedAvailableToGiveAway] =
     useState("");
+  const [genreList, setGenreList] = useState([]);
 
   const getMyListings = async () => {
     const token = await getAccessTokenSilently();
@@ -50,8 +51,26 @@ const MyListings = () => {
       });
   };
 
+  const getGenres = async () => {
+    const token = await getAccessTokenSilently();
+
+    Axios.get(serverUrl + "/api/listings/genres/get", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((response) => {
+        setGenreList(response.data);
+      })
+      .catch((err) => {
+        console.log(err.response);
+        alert(err.response.data);
+      });
+  };
+
   useEffect(() => {
     getMyListings();
+    getGenres();
   }, []);
 
   const deleteListing = async (bookId) => {
@@ -80,7 +99,9 @@ const MyListings = () => {
     setEditIsOpen(true);
     setUpdatedBookTitle(val.title);
     setUpdatedBookAuthor(val.author);
-    setUpdatedBookGenre(val.genre);
+    if (val.genres !== null) {
+      setUpdatedBookGenres(val.genres.split(","));
+    }
     setUpdatedBookDescription(val.description);
     setUpdatedBookImageUrl(val.image);
     setImageHasChanged(false);
@@ -94,7 +115,7 @@ const MyListings = () => {
     setEditIsOpen(false);
     setUpdatedBookTitle("");
     setUpdatedBookAuthor("");
-    setUpdatedBookGenre("");
+    setUpdatedBookGenres([]);
     setUpdatedBookDescription("");
     setUpdatedBookImageUrl("");
     setImageHasChanged(false);
@@ -118,8 +139,7 @@ const MyListings = () => {
           bookId: bookId,
           bookTitle: updatedBookTitle,
           bookAuthor: updatedBookAuthor,
-          bookGenre: updatedBookGenre,
-          bookGenre: updatedBookGenre,
+          bookGenres: updatedBookGenres,
           bookDescription: updatedBookDescription,
           bookImageUrl: imageUrl,
           availableForSwap: updatedAvailableForSwap,
@@ -167,6 +187,35 @@ const MyListings = () => {
     }
   };
 
+  const addSelectedGenres = () => {
+    const genres = Array.from(
+      document.querySelectorAll('input[type="checkbox"]')
+    )
+      .filter((checkbox) => checkbox.checked)
+      .map((checkbox) => checkbox.value);
+
+    setUpdatedBookGenres(genres);
+  };
+
+  function myFunction() {
+    document.getElementById("myDropdown").classList.toggle("show");
+  }
+
+  function filterFunction() {
+    const input = document.getElementById("myInput");
+    const filter = input.value.toUpperCase();
+    const div = document.getElementById("myDropdown");
+    let a = div.getElementsByTagName("span");
+    for (let i = 0; i < a.length; i++) {
+      const txtValue = a[i].textContent || a[i].innerText;
+      if (txtValue.toUpperCase().indexOf(filter) > -1) {
+        a[i].style.display = "";
+      } else {
+        a[i].style.display = "none";
+      }
+    }
+  }
+
   return (
     <div className="myListings">
       {bookList.map((val) => {
@@ -183,7 +232,7 @@ const MyListings = () => {
             )}
 
             <h4>By {val.author}</h4>
-            <p>{val.genre}</p>
+            {val.genres !== null && <p> {val.genres.replaceAll(",", ", ")}</p>}
             <h4>Description:</h4>
             <p>{val.description}</p>
             {!!val.swap && <h4>Available for swap</h4>}
@@ -288,13 +337,63 @@ const MyListings = () => {
                 />
               </div>
               <div>
+                <label>Genres:</label>
+                <ul style={{ textAlign: "left" }}>
+                  {updatedBookGenres.map((val) => {
+                    return (
+                      <span>
+                        <li>{val}</li>
+                      </span>
+                    );
+                  })}
+                </ul>
+                <div className="dropdown">
+                  <button
+                    onClick={(e) => {
+                      myFunction();
+                    }}
+                    className="dropbtn"
+                  >
+                    Search genres
+                  </button>
+                  <div id="myDropdown" className="dropdown-content">
+                    <input
+                      type="text"
+                      placeholder="Search.."
+                      id="myInput"
+                      onKeyUp={(e) => {
+                        filterFunction();
+                      }}
+                    />
+                    {genreList.map((val) => {
+                      return (
+                        <span>
+                          <input
+                            style={{ width: "20px", height: "20px" }}
+                            type="checkbox"
+                            id={val.genre}
+                            name={val.genre}
+                            value={val.genre}
+                            onClick={(e) => {
+                              addSelectedGenres();
+                            }}
+                          />
+                          <label htmlFor={val.genre}>{val.genre}</label>
+                          <br></br>
+                        </span>
+                      );
+                    })}
+                  </div>
+                </div>
+                <br />
+                <br />
                 <label>Genre:</label>
                 <input
                   type="text"
                   name="Genre"
                   defaultValue={selectedBook.genre}
                   onChange={(e) => {
-                    setUpdatedBookGenre(e.target.value);
+                    setUpdatedBookGenres(e.target.value);
                   }}
                 />
               </div>
