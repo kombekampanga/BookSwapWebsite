@@ -86,7 +86,7 @@ listingsRouter.post("/my-listings/insert", checkJwt, (req, res) => {
   const availableForSwap = req.body.availableForSwap;
   const availableToGiveAway = req.body.availableToGiveAway;
   const bookDescription = req.body.bookDescription;
-  console.log(res.body.bookGenres);
+  console.log(req.body.bookGenres);
   console.log(bookGenres);
 
   const sqlInsert =
@@ -192,20 +192,21 @@ listingsRouter.put(
 );
 
 // Update my listing
-listingsRouter.put("/my-listings/update/", checkJwt, (req, res) => {
+listingsRouter.put("/my-listings/update", checkJwt, (req, res) => {
   console.log(req.body);
+  console.log(req.body.bookGenres);
   const userId = req.body.userId;
   const bookId = req.body.bookId;
   const bookTitle = req.body.bookTitle;
   const bookAuthor = req.body.bookAuthor;
-  const bookGenre = req.body.bookGenre;
+  const bookGenre = req.body.bookGenres;
   const bookDescription = req.body.bookDescription;
   const bookImageUrl = req.body.bookImageUrl;
   const availableForSwap = req.body.availableForSwap;
   const availableToGiveAway = req.body.availableToGiveAway;
 
   const sqlUpdate =
-    "UPDATE books SET title = ?, author = ?, genre = ?, description = ?, image = ?, swap = ?, giveAway = ?, modifiedOn = CURRENT_TIMESTAMP WHERE id = ? AND userId = ?";
+    "UPDATE books SET title = ?, author = ?, genres = ?, description = ?, image = ?, swap = ?, giveAway = ?, modifiedOn = CURRENT_TIMESTAMP WHERE id = ? AND userId = ?";
 
   db.query(
     sqlUpdate,

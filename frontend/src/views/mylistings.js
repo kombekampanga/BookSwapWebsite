@@ -139,7 +139,7 @@ const MyListings = () => {
           bookId: bookId,
           bookTitle: updatedBookTitle,
           bookAuthor: updatedBookAuthor,
-          bookGenres: updatedBookGenres,
+          bookGenres: updatedBookGenres.toString(),
           bookDescription: updatedBookDescription,
           bookImageUrl: imageUrl,
           availableForSwap: updatedAvailableForSwap,
@@ -192,13 +192,21 @@ const MyListings = () => {
       document.querySelectorAll('input[type="checkbox"]')
     )
       .filter((checkbox) => checkbox.checked)
-      .map((checkbox) => checkbox.value);
+      .map((checkbox) => checkbox.value)
+      .filter(Boolean);
+    //Boolean removes trailing empty array values that seem to pop up
 
     setUpdatedBookGenres(genres);
   };
 
   function myFunction() {
-    document.getElementById("myDropdown").classList.toggle("show");
+    const currentDisplay = document.getElementById("myDropdown").style.display;
+
+    if (currentDisplay == "none") {
+      document.getElementById("myDropdown").style.display = "inline";
+    } else {
+      document.getElementById("myDropdown").style.display = "none";
+    }
   }
 
   function filterFunction() {
@@ -356,38 +364,46 @@ const MyListings = () => {
                   >
                     Search genres
                   </button>
-                  <div id="myDropdown" className="dropdown-content">
-                    <input
-                      type="text"
-                      placeholder="Search.."
-                      id="myInput"
-                      onKeyUp={(e) => {
-                        filterFunction();
-                      }}
-                    />
-                    {genreList.map((val) => {
-                      return (
-                        <span>
-                          <input
-                            style={{ width: "20px", height: "20px" }}
-                            type="checkbox"
-                            id={val.genre}
-                            name={val.genre}
-                            value={val.genre}
-                            onClick={(e) => {
-                              addSelectedGenres();
-                            }}
-                          />
-                          <label htmlFor={val.genre}>{val.genre}</label>
-                          <br></br>
-                        </span>
-                      );
-                    })}
-                  </div>
                 </div>
-                <br />
-                <br />
-                <label>Genre:</label>
+                <div
+                  style={{
+                    position: "relative",
+                    display: "none",
+                    overflow: "scroll",
+                    maxHeight: "300px",
+                  }}
+                  id="myDropdown"
+                  className="dropdown-content"
+                  size="4"
+                >
+                  <input
+                    type="text"
+                    placeholder="Search.."
+                    id="myInput"
+                    onKeyUp={(e) => {
+                      filterFunction();
+                    }}
+                  />
+                  {genreList.map((val) => {
+                    return (
+                      <span>
+                        <input
+                          style={{ width: "20px", height: "20px" }}
+                          type="checkbox"
+                          id={val.genre}
+                          name={val.genre}
+                          value={val.genre}
+                          onClick={(e) => {
+                            addSelectedGenres();
+                          }}
+                        />
+                        <label htmlFor={val.genre}>{val.genre}</label>
+                        <br></br>
+                      </span>
+                    );
+                  })}
+                </div>
+                {/* <label>Genre:</label>
                 <input
                   type="text"
                   name="Genre"
@@ -395,7 +411,7 @@ const MyListings = () => {
                   onChange={(e) => {
                     setUpdatedBookGenres(e.target.value);
                   }}
-                />
+                /> */}
               </div>
               <div>
                 <label>Description:</label>
