@@ -63,6 +63,31 @@ listingsRouter.get("/my-listings/get", checkJwt, (req, res) => {
   });
 });
 
+// Get listings filtered by genre
+listingsRouter.get("/filtered/get", (req, res) => {
+  const genres = req.query.genres[0];
+  console.log(genres);
+  if (genres.length > 0) {
+    let sqlSelect = `SELECT * FROM books WHERE active = true AND genres LIKE '%${genres[0]}%'`;
+
+    if (genres.length > 1) {
+      // ignore the first element since it was already included
+      genres.slice(1).forEach((genre) => {
+        sqlSelect += ` or genres LIKE '%${genre}%'`;
+      });
+    }
+    console.log(sqlSelect);
+    db.query(sqlSelect, (err, result) => {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log(result);
+        res.send(result);
+      }
+    });
+  }
+});
+
 // Get genres
 listingsRouter.get("/genres/get", checkJwt, (req, res) => {
   const sqlSelect = "SELECT * FROM genres";
