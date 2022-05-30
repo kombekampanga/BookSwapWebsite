@@ -135,7 +135,7 @@ myAccountRouter.delete(
 myAccountRouter.get("/my-requests/get", checkJwt, (req, res) => {
   const userId = req.query.userId;
   const sqlSelect =
-    "SELECT requests.swap, requests.createdOn, requestedBook.title, requestedBook.author, requestedBook.genre, requestedBook.userEmail AS listerEmail, requestedBook.image, bookImSwapping.title AS bookImSwappingTitle, bookImSwapping.author AS bookImSwappingAuthor, bookImSwapping.genre AS bookImSwappingGenre, bookImSwapping.image AS bookImSwappingImage FROM requests JOIN books requestedBook ON requests.bookId = requestedBook.id LEFT JOIN books bookImSwapping ON requests.swappedBook = bookImSwapping.id WHERE requesterId = ? AND requests.active = TRUE";
+    "SELECT requests.swap, requests.createdOn, requestedBook.title, requestedBook.author, requestedBook.genres, requestedBook.userEmail AS listerEmail, requestedBook.image, bookImSwapping.title AS bookImSwappingTitle, bookImSwapping.author AS bookImSwappingAuthor, bookImSwapping.genres AS bookImSwappingGenre, bookImSwapping.image AS bookImSwappingImage FROM requests JOIN books requestedBook ON requests.bookId = requestedBook.id LEFT JOIN books bookImSwapping ON requests.swappedBook = bookImSwapping.id WHERE requesterId = ? AND requests.active = TRUE";
   db.query(sqlSelect, userId, (err, result) => {
     if (err) {
       console.log(err);
@@ -222,7 +222,7 @@ myAccountRouter.put("/my-requests/update/declined", checkJwt, (req, res) => {
 myAccountRouter.get("/others-requests/get", checkJwt, (req, res) => {
   const userId = req.query.userId;
   const sqlSelect =
-    "SELECT requests.id AS requestId, requests.bookId, requests.swap, requests.createdOn, users.email AS requestedBy, requestedBook.title, requestedBook.author, requestedBook.genre, requestedBook.image, bookOfferedForSwapping.title AS bookOfferedForSwappingTitle, bookOfferedForSwapping.author AS bookOfferedForSwappingAuthor, bookOfferedForSwapping.genre AS bookOfferedForSwappingGenre, bookOfferedForSwapping.image AS bookOfferedForSwappingImage FROM requests JOIN books requestedBook ON requests.bookId = requestedBook.id JOIN users ON requests.requesterId = users.userId LEFT JOIN books bookOfferedForSwapping ON requests.swappedBook = bookOfferedForSwapping.id WHERE listerId = ? AND requests.active = TRUE";
+    "SELECT requests.id AS requestId, requests.bookId, requests.swap, requests.createdOn, users.email AS requestedBy, requestedBook.title, requestedBook.author, requestedBook.genres, requestedBook.image, bookOfferedForSwapping.title AS bookOfferedForSwappingTitle, bookOfferedForSwapping.author AS bookOfferedForSwappingAuthor, bookOfferedForSwapping.genres AS bookOfferedForSwappingGenre, bookOfferedForSwapping.image AS bookOfferedForSwappingImage FROM requests JOIN books requestedBook ON requests.bookId = requestedBook.id JOIN users ON requests.requesterId = users.userId LEFT JOIN books bookOfferedForSwapping ON requests.swappedBook = bookOfferedForSwapping.id WHERE listerId = ? AND requests.active = TRUE";
   db.query(sqlSelect, userId, (err, result) => {
     if (err) {
       console.log(err);
