@@ -137,6 +137,7 @@ const MyAccount = () => {
   };
 
   const removeConfirmNotification = async (notificationId) => {
+    console.log("clicked");
     const token = await getAccessTokenSilently();
     Axios.delete(
       serverUrl + "/api/my-account/notifications/swap-confirmed/delete",
